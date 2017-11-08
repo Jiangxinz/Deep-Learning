@@ -118,12 +118,12 @@ def model(X, Y, nh, lr = 0.05, num_iterations = 5000, print_cost = False):
         param = optimize_param(param, grads, lr)
         
         if print_cost and i % 100 == 0:
-            print("The cost of after loop %i times: %f" %(i, cost))
+            print("迭代%i次后的成本: %f" %(i, cost))
     return param, e
 
 def load_dataset():
-    train_set = h5py.File("train_cat.h5","r")
-    test_set = h5py.File("test_cat.h5","r")
+    train_set = h5py.File("D:train_cat.h5","r")
+    test_set = h5py.File("D:test_cat.h5","r")
     
     train_set_x = np.array(train_set["train_set_x"][:])
     train_set_y = np.array(train_set["train_set_y"][:])
@@ -139,7 +139,22 @@ def load_dataset():
     train_set_x = train_set_x.reshape(train_set_x.shape[0],-1).T
     test_set_x = test_set_x.reshape(test_set_x.shape[0],-1).T
     
-    train_set_x = train_set_x / 255.
-    test_set_x = test_set_x /255.
+    train_set_x = train_set_x / 255.0
+    test_set_x = test_set_x /255.0
     
     return train_set_x, train_set_y, test_set_x, test_set_y
+    
+X, Y,x, y = load_dataset()
+
+#隐层不同神经元数目的训练结果
+list_costs = []   #不同神经元数目的成本
+
+for h in [2,3,4,5,10,20]:
+    param ,e= model(X, Y, nh = h, num_iterations = 4000, print_cost = True)
+    predictions1 = predict(param, X)
+    predictions2 = predict(param, x)
+    list_costs.append(e)
+    accuracy1 = float((np.dot(Y,predictions1.T) + np.dot(1-Y,1-predictions1.T))/float(Y.size)*100)
+    accuracy2 = float((np.dot(y,predictions2.T) + np.dot(1-y,1-predictions2.T))/float(y.size)*100)
+    print ("节点数为{}时的训练集识别准确度为 : {} %".format(h, accuracy1))
+    print ("节点数为{}时的测试集识别准确度为 : {} %".format(h, accuracy2))
